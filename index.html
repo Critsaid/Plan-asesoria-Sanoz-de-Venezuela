@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Plan de Asesoría Comercial Interactivo</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Chosen Palette: Cool Breeze -->
+    <!-- Application Structure Plan: The application is structured as an interactive dashboard, allowing non-linear exploration of the commercial advisory proposal. A main navigation grid of cards provides direct access to thematic sections like Introduction, Scope, Methodology, Deliverables, Timeline, Investment, Team, and Value Added. This design prioritizes user understanding and ease of navigation by breaking down complex information into digestible, interactive modules. The methodology is presented as a clickable process flow, and the timeline as a dynamic chart, enhancing comprehension. -->
+    <!-- Visualization & Content Choices: 
+        - Report Info: Introduction (General overview). Goal: Inform/Engage. Viz/Presentation: Text block with highlighted understanding of client needs. Interaction: None. Justification: Provides a clear, welcoming overview. Library/Method: HTML/Tailwind.
+        - Report Info: Scope (Areas to analyze). Goal: Inform/List. Viz/Presentation: Icon-enhanced list. Interaction: None. Justification: Improves readability and visual appeal for a list of items. Library/Method: HTML/Tailwind with Unicode icons.
+        - Report Info: Methodology (3-phase process). Goal: Organize/Explain. Viz/Presentation: Interactive flowchart using HTML/CSS/JS. Interaction: Clicking a phase highlights it and displays its details. Justification: Visually represents the process flow, making it more intuitive than a static text list. Library/Method: Vanilla JS and Tailwind CSS.
+        - Report Info: Deliverables (Key outputs). Goal: Inform/Summarize. Viz/Presentation: Two-column text blocks with bullet points. Interaction: None. Justification: Clearly separates and highlights the main outputs. Library/Method: HTML/Tailwind.
+        - Report Info: Timeline (Estimated duration). Goal: Show Change/Duration. Viz/Presentation: Horizontal Bar Chart. Interaction: Tooltips on hover provide specific week ranges. Justification: Provides an immediate visual summary of the project's length and phase distribution. Library/Method: Chart.js (Canvas).
+        - Report Info: Investment (Fees and terms). Goal: Inform. Viz/Presentation: Two-column text blocks with bullet points. Interaction: None. Justification: Presents financial information clearly. Library/Method: HTML/Tailwind.
+        - Report Info: Team (Consultant profiles). Goal: Inform. Viz/Presentation: Text descriptions. Interaction: None. Justification: Introduces the human element of the service. Library/Method: HTML/Tailwind.
+        - Report Info: Value Added (Differentiators). Goal: Persuade/Highlight. Viz/Presentation: Highlighted text blocks. Interaction: None. Justification: Emphasizes unique selling points. Library/Method: HTML/Tailwind.
+    -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #F8FAFC; /* Very light blue-grey */
+            color: #2F4F4F; /* Dark slate gray */
+        }
+        .nav-card {
+            transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+        }
+        .nav-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+        .nav-card.active {
+            border-color: #4682B4; /* Steel Blue */
+            background-color: #E0F2F7; /* Light Cyan */
+            transform: translateY(-2px);
+        }
+        .content-section {
+            display: none;
+        }
+        .content-section.active {
+            display: block;
+        }
+        .phase-box {
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        .phase-box.active {
+            background-color: #4682B4; /* Steel Blue */
+            color: #FFFFFF;
+            border-color: #4682B4;
+        }
+        .phase-box.active .phase-icon {
+            color: #FFFFFF;
+        }
+        .phase-icon {
+            transition: color 0.3s ease;
+            color: #4682B4; /* Steel Blue */
+        }
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 250px;
+            max-height: 300px;
+        }
+        @media (min-width: 768px) {
+            .chart-container {
+                height: 300px;
+                max-height: 400px;
+            }
+        }
+    </style>
+</head>
+<body class="antialiased">
+
+    <div class="container mx-auto p-4 md:p-8">
+        
+        <header class="text-center mb-8 md:mb-12 bg-[#4682B4] text-white py-8 px-4 rounded-xl shadow-lg">
+            <h1 class="text-3xl md:text-4xl font-bold">Plan Interactivo de Asesoría Comercial</h1>
+            <p class="mt-2 text-lg opacity-90">Una guía para el diagnóstico y la estrategia comercial</p>
+        </header>
+
+        <main>
+            <div id="navigation" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6 mb-8 md:mb-12">
+                <div class="nav-card active bg-white p-4 rounded-lg shadow-md border-2 border-transparent cursor-pointer text-center" data-target="intro">
+                    <div class="text-3xl mb-2">🚀</div>
+                    <h3 class="font-semibold text-gray-800">Introducción</h3>
+                </div>
+                <div class="nav-card bg-white p-4 rounded-lg shadow-md border-2 border-transparent cursor-pointer text-center" data-target="scope">
+                    <div class="text-3xl mb-2">🎯</div>
+                    <h3 class="font-semibold text-gray-800">Alcance</h3>
+                </div>
+                <div class="nav-card bg-white p-4 rounded-lg shadow-md border-2 border-transparent cursor-pointer text-center" data-target="methodology">
+                    <div class="text-3xl mb-2">🛠️</div>
+                    <h3 class="font-semibold text-gray-800">Metodología</h3>
+                </div>
+                <div class="nav-card bg-white p-4 rounded-lg shadow-md border-2 border-transparent cursor-pointer text-center" data-target="deliverables">
+                    <div class="text-3xl mb-2">📦</div>
+                    <h3 class="font-semibold text-gray-800">Entregables</h3>
+                </div>
+                <div class="nav-card bg-white p-4 rounded-lg shadow-md border-2 border-transparent cursor-pointer text-center" data-target="timeline">
+                    <div class="text-3xl mb-2">🗓️</div>
+                    <h3 class="font-semibold text-gray-800">Cronograma</h3>
+                </div>
+                <div class="nav-card bg-white p-4 rounded-lg shadow-md border-2 border-transparent cursor-pointer text-center" data-target="investment">
+                    <div class="text-3xl mb-2">💰</div>
+                    <h3 class="font-semibold text-gray-800">Inversión</h3>
+                </div>
+                <div class="nav-card bg-white p-4 rounded-lg shadow-md border-2 border-transparent cursor-pointer text-center" data-target="team">
+                    <div class="text-3xl mb-2">👥</div>
+                    <h3 class="font-semibold text-gray-800">Equipo</h3>
+                </div>
+                 <div class="nav-card bg-white p-4 rounded-lg shadow-md border-2 border-transparent cursor-pointer text-center" data-target="value">
+                    <div class="text-3xl mb-2">✨</div>
+                    <h3 class="font-semibold text-gray-800">Valor Agregado</h3>
+                </div>
+            </div>
+
+            <div id="content" class="bg-white p-6 md:p-8 rounded-xl shadow-lg min-h-[400px]">
+                
+                <section id="intro" class="content-section active">
+                    <h2 class="text-2xl font-bold text-[#4682B4] mb-4">Propuesta de Diagnóstico Comercial y Estratégico</h2>
+                    <p class="mb-4 text-[#2F4F4F]">Esta aplicación interactiva desglosa los componentes clave de una propuesta de consultoría comercial. El objetivo es proporcionar un entendimiento claro y estructurado del proceso de diagnóstico, desde la definición del alcance hasta la entrega de resultados. Explore las diferentes secciones para comprender cómo se puede evaluar y potenciar el área comercial de una compañía.</p>
+                    <div class="bg-[#E0F2F7] border-l-4 border-[#66CDAA] p-4 rounded-r-lg">
+                        <h4 class="font-semibold text-[#2F4F4F]">Entendimiento de la Necesidad</h4>
+                        <p class="text-[#2F4F4F] mt-1">Un buen diagnóstico comienza por comprender a fondo los desafíos y metas del cliente. El objetivo general es identificar áreas de mejora en el proceso comercial para optimizar la rentabilidad y el crecimiento sostenible.</p>
+                    </div>
+                </section>
+
+                <section id="scope" class="content-section">
+                    <h2 class="text-2xl font-bold text-[#4682B4] mb-4">Alcance del Diagnóstico</h2>
+                    <p class="mb-6 text-[#2F4F4F]">Para realizar un análisis completo, el diagnóstico se enfoca en diversas áreas interconectadas que impactan el rendimiento comercial. A continuación se detallan los pilares fundamentales que serán objeto de estudio.</p>
+                    <ul class="space-y-4">
+                        <li class="flex items-start"><span class="text-xl mr-3 text-[#66CDAA]">📈</span><div><strong class="text-[#2F4F4F]">Estrategia Comercial:</strong> Posicionamiento, propuesta de valor y objetivos de ventas.</div></li>
+                        <li class="flex items-start"><span class="text-xl mr-3 text-[#66CDAA]">🔄</span><div><strong class="text-[#2F4F4F]">Procesos de Ventas:</strong> Ciclo y embudo de ventas, gestión de leads y uso de CRM.</div></li>
+                        <li class="flex items-start"><span class="text-xl mr-3 text-[#66CDAA]">🏢</span><div><strong class="text-[#2F4F4F]">Estructura Organizacional:</strong> Roles, responsabilidades y esquemas de compensación.</div></li>
+                        <li class="flex items-start"><span class="text-xl mr-3 text-[#66CDAA]">📣</span><div><strong class="text-[#2F4F4F]">Marketing y Generación de Demanda:</strong> Estrategias de captación y alineación con ventas.</div></li>
+                        <li class="flex items-start"><span class="text-xl mr-3 text-[#66CDAA]">🤝</span><div><strong class="text-[#2F4F4F]">Gestión de Clientes:</strong> Fidelización, retención y medición de la satisfacción.</div></li>
+                        <li class="flex items-start"><span class="text-xl mr-3 text-[#66CDAA]">📊</span><div><strong class="text-[#2F4F4F]">Análisis de Datos y Métricas:</strong> KPIs, reportes y toma de decisiones basada en datos.</div></li>
+                        <li class="flex items-start"><span class="text-xl mr-3 text-[#66CDAA]">💻</span><div><strong class="text-[#2F4F4F]">Tecnología y Herramientas:</strong> Uso y optimización de software de ventas y automatización.</div></li>
+                    </ul>
+                </section>
+
+                <section id="methodology" class="content-section">
+                    <h2 class="text-2xl font-bold text-[#4682B4] mb-4">Metodología Interactiva</h2>
+                    <p class="mb-6 text-[#2F4F4F]">El diagnóstico se desarrolla en tres fases secuenciales. Haga clic en cada fase para ver los detalles de las actividades que se realizan en ella.</p>
+                    <div class="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0 md:space-x-4 mb-6">
+                        <div id="phase-1" class="phase-box active w-full md:w-1/3 text-center p-4 border-2 rounded-lg bg-gray-50">
+                            <div class="phase-icon text-3xl mb-2">🔍</div>
+                            <h4 class="font-semibold">Fase 1: Recopilación</h4>
+                        </div>
+                        <div class="text-gray-400 text-2xl hidden md:block">→</div>
+                        <div id="phase-2" class="phase-box w-full md:w-1/3 text-center p-4 border-2 rounded-lg bg-gray-50">
+                            <div class="phase-icon text-3xl mb-2">🧩</div>
+                            <h4 class="font-semibold">Fase 2: Análisis</h4>
+                        </div>
+                        <div class="text-gray-400 text-2xl hidden md:block">→</div>
+                        <div id="phase-3" class="phase-box w-full md:w-1/3 text-center p-4 border-2 rounded-lg bg-gray-50">
+                            <div class="phase-icon text-3xl mb-2">💡</div>
+                            <h4 class="font-semibold">Fase 3: Propuesta</h4>
+                        </div>
+                    </div>
+                    <div id="methodology-details" class="bg-gray-50 p-6 rounded-lg">
+                        <!-- Content will be injected by JS -->
+                    </div>
+                </section>
+
+                <section id="deliverables" class="content-section">
+                    <h2 class="text-2xl font-bold text-[#4682B4] mb-4">Entregables Clave</h2>
+                    <p class="mb-6 text-[#2F4F4F]">Al finalizar el diagnóstico, se presentarán dos entregables principales que resumen los hallazgos y proponen un camino a seguir.</p>
+                    <div class="grid md:grid-cols-2 gap-6">
+                        <div class="bg-[#E0F2F7] p-6 rounded-lg border border-[#66CDAA]">
+                            <h3 class="font-bold text-lg text-[#2F4F4F] mb-2">1. Informe de Diagnóstico Detallado</h3>
+                            <p class="text-[#2F4F4F] mb-4">Un documento completo que incluye:</p>
+                            <ul class="list-disc list-inside space-y-2 text-[#2F4F4F]">
+                                <li>Resumen ejecutivo</li>
+                                <li>Hallazgos clave por área</li>
+                                <li>Análisis FODA (Fortalezas, Oportunidades, Debilidades, Amenazas)</li>
+                                <li>Conclusiones</li>
+                                <li>Recomendaciones estratégicas y operativas</li>
+                            </ul>
+                        </div>
+                        <div class="bg-[#E0F2F7] p-6 rounded-lg border border-[#66CDAA]">
+                            <h3 class="font-bold text-lg text-[#2F4F4F] mb-2">2. Plan de Acción y Presentación</h3>
+                            <p class="text-[#2F4F4F] mb-4">Una propuesta tangible y una sesión de trabajo:</p>
+                            <ul class="list-disc list-inside space-y-2 text-[#2F4F4F]">
+                                <li>Plan de acción con pasos, responsables y plazos</li>
+                                <li>Presentación ejecutiva a la alta dirección</li>
+                                <li>Sesión de discusión y aclaración de dudas</li>
+                            </ul>
+                        </div>
+                    </div>
+                </section>
+
+                <section id="timeline" class="content-section">
+                    <h2 class="text-2xl font-bold text-[#4682B4] mb-4">Cronograma Visual</h2>
+                    <p class="mb-6 text-[#2F4F4F]">El proyecto de diagnóstico se estima en una duración de 6 semanas, distribuidas según las fases de la metodología. El siguiente gráfico ilustra la dedicación de tiempo para cada etapa.</p>
+                    <div class="chart-container">
+                        <canvas id="timelineChart"></canvas>
+                    </div>
+                </section>
+
+                <section id="investment" class="content-section">
+                    <h2 class="text-2xl font-bold text-[#4682B4] mb-4">Inversión y Condiciones</h2>
+                     <p class="mb-6 text-[#2F4F4F]">Ofrecemos modelos de inversión flexibles para adaptarnos a las necesidades de su compañía, garantizando transparencia y un claro retorno de la inversión.</p>
+                    <div class="grid md:grid-cols-2 gap-6">
+                        <div class="p-6 bg-[#E0F2F7] rounded-lg">
+                            <h3 class="font-semibold text-lg mb-2">Opciones de Honorarios</h3>
+                            <ul class="list-disc list-inside space-y-2 text-[#2F4F4F]">
+                                <li><strong>Tarifa Fija por Proyecto:</strong> Un valor único por el diagnóstico completo. Ideal para un alcance bien definido.</li>
+                                <li><strong>Tarifa por Horas/Días:</strong> Flexibilidad para proyectos con alcance variable o consultoría continua.</li>
+                            </ul>
+                        </div>
+                        <div class="p-6 bg-[#E0F2F7] rounded-lg">
+                            <h3 class="font-semibold text-lg mb-2">Condiciones Comerciales</h3>
+                             <ul class="list-disc list-inside space-y-2 text-[#2F4F4F]">
+                                <li><strong>Forma de Pago:</strong> Típicamente 50% al inicio del proyecto y 50% contra entrega del informe final.</li>
+                                <li><strong>Validez de la Propuesta:</strong> La oferta comercial tiene una validez de 30 días.</li>
+                            </ul>
+                        </div>
+                    </div>
+                </section>
+
+                <section id="team" class="content-section">
+                    <h2 class="text-2xl font-bold text-[#4682B4] mb-4">Equipo de Trabajo</h2>
+                    <p class="mb-6 text-[#2F4F4F]">Nuestro equipo está compuesto por consultores con amplia experiencia en estrategia comercial y optimización de procesos en diversos sectores.</p>
+                    <div class="bg-[#E0F2F7] p-6 rounded-lg">
+                        <h3 class="font-semibold text-lg mb-2">Consultor Principal</h3>
+                        <p class="text-[#2F4F4F]">El proyecto será liderado por un consultor senior con más de 10 años de experiencia ayudando a empresas a alcanzar sus metas de crecimiento. Su rol es garantizar la calidad del diagnóstico y la relevancia de las recomendaciones.</p>
+                        <h3 class="font-semibold text-lg mt-4 mb-2">Equipo de Soporte</h3>
+                        <p class="text-[#2F4F4F]">Dependiendo de la complejidad, el consultor principal puede estar apoyado por analistas especializados en investigación de mercado y análisis de datos para enriquecer la profundidad del diagnóstico.</p>
+                    </div>
+                </section>
+
+                <section id="value" class="content-section">
+                    <h2 class="text-2xl font-bold text-[#4682B4] mb-4">Nuestro Valor Agregado</h2>
+                    <p class="mb-6 text-[#2F4F4F]">Más allá de un informe, nuestro compromiso es ser un socio estratégico en su crecimiento. Nos diferenciamos por:</p>
+                    <div class="space-y-4">
+                        <div class="p-4 bg-[#E0F2F7] rounded-lg">
+                            <strong class="text-[#2F4F4F]">Enfoque Personalizado:</strong> No creemos en soluciones genéricas. Adaptamos nuestra metodología a la cultura, el sector y los desafíos únicos de su empresa.
+                        </div>
+                        <div class="p-4 bg-[#E0F2F7] rounded-lg">
+                            <strong class="text-[#2F4F4F]">Orientación a Resultados:</strong> Nuestras recomendaciones son prácticas, medibles y están diseñadas para generar un impacto tangible en su rentabilidad y eficiencia comercial.
+                        </div>
+                        <div class="p-4 bg-[#E0F2F7] rounded-lg">
+                            <strong class="text-[#2F4F4F]">Transferencia de Conocimiento:</strong> Trabajamos de la mano con su equipo, no solo para diagnosticar, sino para capacitar y empoderar a sus colaboradores, asegurando la sostenibilidad de las mejoras.
+                        </div>
+                    </div>
+                </section>
+
+            </div>
+        </main>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const navCards = document.querySelectorAll('.nav-card');
+            const contentSections = document.querySelectorAll('.content-section');
+            const methodologyPhases = document.querySelectorAll('.phase-box');
+            const methodologyDetailsContainer = document.getElementById('methodology-details');
+            let timelineChart = null;
+
+            const methodologyData = {
+                'phase-1': {
+                    title: 'Fase 1: Recopilación de Información',
+                    description: 'Esta fase inicial se centra en entender profundamente la situación actual de la compañía. Se realizan entrevistas con personal clave (dirección, ventas, marketing), se analizan documentos internos como informes de ventas y planes estratégicos, y se observa el proceso comercial en acción para obtener una visión completa y objetiva.'
+                },
+                'phase-2': {
+                    title: 'Fase 2: Análisis y Evaluación',
+                    description: 'Con la información recopilada, se procede a analizarla para identificar patrones y áreas críticas. Se utilizan herramientas como el análisis FODA, se evalúan los KPIs actuales contra benchmarks del sector y se identifican las brechas entre el estado actual y los objetivos deseados.'
+                },
+                'phase-3': {
+                    title: 'Fase 3: Elaboración de Conclusiones y Propuesta',
+                    description: 'En la fase final, se consolidan los hallazgos en un informe claro y conciso. Se formulan recomendaciones estratégicas y operativas, priorizadas según su impacto y viabilidad. El resultado es un plan de acción concreto para que la empresa pueda implementar las mejoras de manera efectiva.'
+                }
+            };
+            
+            function updateMethodologyDetails(phaseId) {
+                const data = methodologyData[phaseId];
+                methodologyDetailsContainer.innerHTML = `
+                    <h4 class="font-bold text-lg text-[#2F4F4F] mb-2">${data.title}</h4>
+                    <p class="text-[#2F4F4F]">${data.description}</p>
+                `;
+            }
+
+            function activateSection(targetId) {
+                navCards.forEach(card => {
+                    card.classList.toggle('active', card.dataset.target === targetId);
+                });
+                contentSections.forEach(section => {
+                    section.classList.toggle('active', section.id === targetId);
+                });
+
+                if (targetId === 'timeline' && !timelineChart) {
+                    renderTimelineChart();
+                }
+                 if (targetId === 'methodology') {
+                    const activePhase = document.querySelector('.phase-box.active');
+                    updateMethodologyDetails(activePhase.id);
+                }
+            }
+
+            navCards.forEach(card => {
+                card.addEventListener('click', () => {
+                    const targetId = card.dataset.target;
+                    activateSection(targetId);
+                });
+            });
+
+            methodologyPhases.forEach(phase => {
+                phase.addEventListener('click', () => {
+                    methodologyPhases.forEach(p => p.classList.remove('active'));
+                    phase.classList.add('active');
+                    updateMethodologyDetails(phase.id);
+                });
+            });
+
+            function renderTimelineChart() {
+                const ctx = document.getElementById('timelineChart').getContext('2d');
+                timelineChart = new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: ['Fase 1: Recopilación', 'Fase 2: Análisis', 'Fase 3: Propuesta'],
+                        datasets: [{
+                            label: 'Duración (Semanas)',
+                            data: [
+                                [0, 2], // Semana 1 a 2
+                                [2, 4], // Semana 3 a 4
+                                [4, 6]  // Semana 5 a 6
+                            ],
+                            backgroundColor: [
+                                'rgba(70, 130, 180, 0.6)', /* Steel Blue with transparency */
+                                'rgba(102, 205, 170, 0.6)', /* Medium Aquamarine with transparency */
+                                'rgba(70, 130, 180, 0.6)', /* Steel Blue with transparency */
+                            ],
+                            borderColor: [
+                                'rgba(70, 130, 180, 1)',
+                                'rgba(102, 205, 170, 1)',
+                                'rgba(70, 130, 180, 1)',
+                            ],
+                            borderWidth: 1,
+                            barPercentage: 0.5,
+                        }]
+                    },
+                    options: {
+                        indexAxis: 'y',
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            x: {
+                                min: 0,
+                                max: 6,
+                                title: {
+                                    display: true,
+                                    text: 'Semanas del Proyecto'
+                                },
+                                ticks: {
+                                    color: '#2F4F4F'
+                                },
+                                grid: {
+                                    color: 'rgba(47, 79, 79, 0.1)'
+                                }
+                            },
+                            y: {
+                                grid: {
+                                    display: false
+                                },
+                                ticks: {
+                                    color: '#2F4F4F'
+                                }
+                            }
+                        },
+                        plugins: {
+                            legend: {
+                                display: false
+                            },
+                            tooltip: {
+                                callbacks: {
+                                    label: function(context) {
+                                        const value = context.raw;
+                                        return `Semanas ${value[0] + 1} a ${value[1]}`;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+
+            activateSection('intro');
+            updateMethodologyDetails('phase-1');
+        });
+    </script>
+</body>
+</html>
